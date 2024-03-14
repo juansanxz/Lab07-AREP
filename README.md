@@ -45,30 +45,30 @@ docker run -d --network=my_network -p 35000:46000 --name serverfacade juansanxz/
 ```  
 
 4. Una vez creados los contenedores con las imágenes de docker hub, se obeservará en docker algo similar:  
-![img.png](img.png)  
+![img.png](img/img.png)  
 
 5. Si intenta ingresar a la URL `http://localhost:35000/login.html`, no podrá acceder al servicio, porque en esta aplicación se está usando el protocolo _HTTPS_.  
-![img_1.png](img_1.png)  
+![img_1.png](img/img_1.png)  
 
 6. Ahora, si ingresa a la URL `https://localhost:35000/login.html`, podrá comprobar el correcto funcionamiento de la aplicación, usando certificados que garantizan la integridad de los datos y la autenticación del origen de la solicitud:  
-![img_2.png](img_2.png)  
+![img_2.png](img/img_2.png)  
 
 7. Intente acceder al servicio. Las únicas credenciales permitidas para hacerlo son las siguientes:  
 Correo: `juansan@mail.com`  
 Contraseña: `juan123`  
 Al ingresarlas, será redirigido al servicio para determinar si una cadena es un palíndromo:  
-![img_3.png](img_3.png)  
-![img_4.png](img_4.png)  
+![img_3.png](img/img_3.png)  
+![img_4.png](img/img_4.png)  
 
 Si intenta usar otras credenciales, se le notificará que no son correctas y no podrá acceder al servicio:  
-![img_5.png](img_5.png)  
+![img_5.png](img/img_5.png)  
 
 8. Use el servicio que determina si una cadena es o no un palíndromo:  
-![img_6.png](img_6.png)  
+![img_6.png](img/img_6.png)  
 
 ## Decisiones de diseño
 La arquitectura implementada fue la siguiente:  
-![img_7.png](img_7.png)
+![img_7.png](img/img_7.png)
 
 Esta arquitectura atiende los requerimientos solicitados en el enunciado:  
 1. __Debe permitir un acceso seguro desde el browser a la aplicación. Es decir debe garantizar autenticación, autorización e integridad de usuarios.__
@@ -99,13 +99,13 @@ Esta arquitectura atiende los requerimientos solicitados en el enunciado:
 ## Despliegue
 Para realizar el despliegue, se crearon dos instancias de EC2 en AWS  con la imagen del sistema operativo Linux y con una arquitectura de 64 bits (Arm):   
 1. En la primera se crearon cuatro contenedores (el contenedor `addusercontainer`no se indicó en la arquitectura, porque se usa sólo para poblar la base de datos con un usuario):  
-![img_8.png](img_8.png)  
+![img_8.png](img/img_8.png)  
 
 2. En la segunda, se creó uno solamente, que corresponde al que ejecuta el `PalindromeServer.java`:   
-![img_9.png](img_9.png)  
+![img_9.png](img/img_9.png)  
 
 Luego, se agrega una regla de entrada en el grupo de seguridad de la primera instancia de EC2 para permitir el tráfico por el puerto _35000_, y otra en la segunda instancia para permitir el tráfico por el puerto _35002_, que será usado para comuicar las máquinas. Una vez hecho esto, se ingresa a la URL compuesta por el dominio de la primera instancia de EC2 (que contiene al servidor fachada) y el puerto indicado anteriormente, junto al recurso que se desea solicitar; comprobando el funcionamiento adecuado del despliegue:  
-![img_10.png](img_10.png)  
+![img_10.png](img/img_10.png)  
 
 En el siguiente video, se observa el despliegue realizado de forma exitosa, estableciendo una comunicación segura tanto desde el browser a la aplicación, como entre las instancias de EC2 que consumen servicios entre sí dentro de la arquitectura diseñada.  
 Primero, se observa la conexión correspondiente a cada instacia de EC2. En la terminal de la izquierda se muestra la creación de el contenedor del servicio fachada, y se muestran los contenedores que estan ejecutándose. En la terminal ubicada al lado derecho, se crea el contenedor correspondiente para el servicio que determina si una cadena es un palíndromo, tal como se muestra en la arquitectura definida en la sección _Decisiones de diseño_, y se evidencia que es el único contenedor que se ha creado en esa máquina virtual de AWS.  
