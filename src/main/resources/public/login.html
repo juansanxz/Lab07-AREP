@@ -1,15 +1,15 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Message</title>
+  <title>Login</title>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 <body>
-<h1>Log de mensajes</h1>
-<form action="/hello">
-  <label for="uname">Nombre de usuario:</label><br>
-  <input type="text" id="uname" name="uname" value=""><br><br>
+<h1>Iniciar sesion</h1>
+<form action="/checkCredentials">
+  <label for="email">Correo:</label><br>
+  <input type="text" id="email" name="email" value=""><br><br>
   <label for="pwd">Contraseña:</label><br>
   <input type="text" id="pwd" name="pwd" value=""><br><br>
   <input type="button" value="Submit" onclick="loadGetMsg()">
@@ -18,13 +18,20 @@
 
 <script>
   function loadGetMsg() {
-      let msgVar = document.getElementById("msg").value;
+      let email = document.getElementById("email").value;
+      let pwd = document.getElementById("pwd").value;
       const xhttp = new XMLHttpRequest();
       xhttp.onload = function() {
-          document.getElementById("getrespmsg").innerHTML =
-          this.responseText;
+          console.log(this.responseText);
+          if (this.status === 200) {
+               document.getElementById("getrespmsg").innerHTML = "";
+               window.location.href = "palindrome.html";
+           } else if (this.status === 401) {
+               document.getElementById("getrespmsg").innerHTML = "Usuario o contraseña incorrectos";
+           }
+
       }
-      xhttp.open("GET", "/logservicefacade?msg="+msgVar);
+      xhttp.open("GET", "/checkLogin?email="+email+"&pwd="+pwd);
       xhttp.send();
   }
 </script>

@@ -17,12 +17,12 @@ import javax.net.ssl.TrustManagerFactory;
 
 public class SecureURLReader {
 
-    public static void main(String[] args) {
+    public static String invokeService(String arg, String keyFile, String password) {
         try {
 
             // Create a file and a password representation
-            File trustStoreFile = new File("certificados/myTrustStore.p12");
-            char[] trustStorePassword = "123456".toCharArray();
+            File trustStoreFile = new File("certificados/" + keyFile);
+            char[] trustStorePassword = password.toCharArray();
 
             // Load the trust store, the default type is "pkcs12", the alternative is "jks"
             KeyStore trustStore = KeyStore.getInstance(KeyStore.getDefaultType());
@@ -47,19 +47,8 @@ public class SecureURLReader {
             SSLContext.setDefault(sslContext);
 
             // We can now read this URL
-            readURL("https://localhost:5000/hello");
+            return readURL(arg);
 
-            String password = "hola";
-
-            MessageDigest md = MessageDigest.getInstance("SHA-256");
-            byte[] digest = md.digest(password.getBytes(StandardCharsets.UTF_8));
-            String sha256 = DatatypeConverter.printHexBinary(digest).toLowerCase();
-
-            // imprimir resumen de mensaje SHA-256
-            System.out.println(sha256);
-            // This one can't be read because the Java default truststore has been
-            // changed.
-            readURL("https://www.google.com");
 
         } catch (KeyStoreException ex) {
             Logger.getLogger(SecureURLReader.class.getName()).log(Level.SEVERE, null, ex);
@@ -74,10 +63,11 @@ public class SecureURLReader {
         } catch (KeyManagementException ex) {
             Logger.getLogger(SecureURLReader.class.getName()).log(Level.SEVERE, null, ex);
         }
+        return null;
 
     }
 
-    public static void readURL(String sitetoread) {
+    public static String readURL(String sitetoread) {
         try {
             // Crea el objeto que representa una URL2
             URL siteURL = new URL(sitetoread);
@@ -95,10 +85,14 @@ public class SecureURLReader {
                 //Si el nombre es nulo, significa que es la linea de estado
                 if (headerName != null) {
                     System.out.print(headerName + ":");
+
                 }
                 List<String> headerValues = entry.getValue();
                 for (String value : headerValues) {
                     System.out.print(value);
+                    if(value.contains("401 Unauthorized")) {
+                        return value;
+                    }
                 }
                 System.out.println("");
             }
@@ -106,13 +100,16 @@ public class SecureURLReader {
             System.out.println("-------message-body------");
             BufferedReader reader = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
 
-            String inputLine = null;
+            String inputLine = null, outputline = "";
             while ((inputLine = reader.readLine()) != null) {
+                outputline = outputline + inputLine;
                 System.out.println(inputLine);
             }
+            return outputline;
         } catch (IOException x) {
             System.err.println(x);
         }
+        return null;
     }
 }
 
